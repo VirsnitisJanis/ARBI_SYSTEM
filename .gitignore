@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+.env
+.env.*
+logs/
+*.log
+*.csv
+*.db
+*.sqlite
+data/
+src/data/
+*.bin
+*.pkl
+
+# OS junk
+.DS_Store

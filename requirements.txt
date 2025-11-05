@@ -1,0 +1,5 @@
+ccxt
+websockets
+python-dotenv
+pandas
+pyyaml
