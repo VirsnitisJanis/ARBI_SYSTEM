@@ -19,3 +19,7 @@ src/data/
 
 # OS junk
 .DS_Store
+# secrets and runtime
+.env
+.env.local
+src/data/*.json
