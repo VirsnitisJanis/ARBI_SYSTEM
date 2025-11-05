@@ -1,0 +1,6 @@
+pairs:
+  - symbol: BTC/USDC
+    exchanges:
+      - binance
+      - kucoin
+base: USDC
