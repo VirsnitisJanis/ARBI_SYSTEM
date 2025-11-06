@@ -76,3 +76,38 @@ python3 src/auto_scaler_manager.py
 
 
 
+
+---
+
+## 🧠 Stage-21 — Dynamic Pair Discovery + TG Summary
+
+Automātiski atrod USDC pārus, kas pieejami vismaz uz 2 biržām, respektē `pairs.json` (ja ir), WL/BL un budžetu.
+
+### Palaišana
+```bash
+source venv/bin/activate
+export $(grep -v '^#' .env.local | xargs)
+
+# (brīvprātīgi) manuāls saraksts ar prioritāti
+cat > pairs.json << 'JSON'
+{ "monitor": ["BTC/USDC", "ETH/USDC", "SOL/USDC"] }
+JSON
+
+# parametri
+export DISCOVERY_SEC=120
+export MIN_QUOTES_USDC=10
+export MAX_AGENTS=6
+export USE_EXCHANGES="binance,kucoin,kraken"
+
+# router skripts un tā parametri (Stage-17/19)
+export ROUTER_SCRIPT="src/smart_hedge_router_protected.py"
+export EDGE_OPEN_BPS=2.0
+export HEDGE_SIZE_BTC=0.0004
+export ADAPTIVE_COEFF=0.6
+export CHECK_INTERVAL_S=2.0
+export STOP_PNL_USD=-0.10
+export RECOVERY_WAIT_S=90
+
+# start
+python3 src/auto_scaler_manager.py
+
