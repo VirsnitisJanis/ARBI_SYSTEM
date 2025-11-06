@@ -4,19 +4,36 @@ from pathlib import Path
 DATA_FILE = Path(__file__).resolve().parent.parent / "data_balances.json"
 
 def load_snapshot():
+    """Load balances snapshot from JSON file"""
     if DATA_FILE.exists():
-        with open(DATA_FILE) as f:
-            return json.load(f)
+        try:
+            return json.loads(DATA_FILE.read_text())
+        except Exception:
+            return {}
     return {}
 
 def save_snapshot(data):
+    """Save balances snapshot"""
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-    print(f"[SAVE] Balances saved to {DATA_FILE}")
+    DATA_FILE.write_text(json.dumps(data, indent=2))
+
+def get(exchange: str, asset: str) -> float:
+    """Return specific balance value"""
+    snap = load_snapshot()
+    return float(snap.get(exchange, {}).get(asset, 0.0))
+
+def adjust(exchange: str, asset: str, delta: float):
+    """Adjust stored balance after simulated or real trade"""
+    snap = load_snapshot()
+    snap.setdefault(exchange, {}).setdefault(asset, 0.0)
+    snap[exchange][asset] += delta
+    save_snapshot(snap)
+
+def snapshot():
+    """Legacy-compatible accessor"""
+    return load_snapshot()
 
 def sync_from_ccxt():
-    import os
     exchs = {
         "binance": ccxt.binance({
             "apiKey": os.getenv("BINANCE_API_KEY"),
@@ -30,7 +47,7 @@ def sync_from_ccxt():
         "kraken": ccxt.kraken({
             "apiKey": os.getenv("KRAKEN_API_KEY"),
             "secret": os.getenv("KRAKEN_SECRET_KEY")
-        })
+        }),
     }
 
     snap = {}
@@ -49,8 +66,3 @@ def sync_from_ccxt():
 
     save_snapshot(snap)
     return snap
-
-# === Legacy compatibility alias ===
-def snapshot():
-    """Saglabāta saderība ar veco kodu — atgriež aktuālo bilances snapshot"""
-    return load_snapshot()
