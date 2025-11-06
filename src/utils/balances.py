@@ -1,42 +1,43 @@
-import json, os, threading, time
-from pathlib import Path
+# src/utils/balances.py
+import json
+import os
 
-_STATE = Path("src/data/balances.json")
-_LOCK = threading.Lock()
+BAL_FILE = "data/balances.json"
 
-def _ensure():
-    _STATE.parent.mkdir(parents=True, exist_ok=True)
-    if not _STATE.exists():
-        _STATE.write_text(json.dumps({"binance":{"USDC":0.0,"BTC":0.0},
-                                      "kucoin":{"USDC":0.0,"BTC":0.0}}, indent=2))
+# sākotnējās bilances glabāšana atmiņā
+s = {
+    "binance": {"USDC": 0.0, "BTC": 0.0},
+    "kucoin": {"USDC": 0.0, "BTC": 0.0},
+    "kraken": {"USDC": 0.0, "BTC": 0.0},
+}
 
-def _load():
-    _ensure()
-    return json.loads(_STATE.read_text())
+# ─────────────────────────────────────────────
+def snapshot():
+    """Atgriež bilances kopiju kā JSON stringu."""
+    return json.loads(json.dumps(s))
 
-def _save(state):
-    _STATE.write_text(json.dumps(state, indent=2))
-
-def seed(venue, usdc=None, btc=None):
-    with _LOCK:
-        s = _load()
-        if venue not in s: s[venue] = {"USDC":0.0,"BTC":0.0}
-        if usdc is not None: s[venue]["USDC"] = float(usdc)
-        if btc  is not None: s[venue]["BTC"]  = float(btc)
-        _save(s)
-
+# ─────────────────────────────────────────────
 def get(venue, asset):
-    s = _load()
+    """Droši saņem aktīva bilanci. Ja neeksistē, inicializē 0."""
+    if venue not in s:
+        s[venue] = {"USDC": 0.0, "BTC": 0.0}
+    if asset not in s[venue]:
+        s[venue][asset] = 0.0
     return float(s[venue][asset])
 
+# ─────────────────────────────────────────────
 def adjust(venue, asset, delta):
-    with _LOCK:
-        s = _load()
-        s[venue][asset] = float(s[venue][asset]) + float(delta)
-        _save(s)
+    """Maina bilanci (piem., pēc hedžiem)."""
+    if venue not in s:
+        s[venue] = {"USDC": 0.0, "BTC": 0.0}
+    if asset not in s[venue]:
+        s[venue][asset] = 0.0
+    s[venue][asset] += delta
+    return s[venue][asset]
 
-def ensure_min(venue, asset, minimum):
-    return get(venue, asset) >= float(minimum)
-
-def snapshot():
-    return _load()
+# ─────────────────────────────────────────────
+def save():
+    """Saglabā bilances failā."""
+    os.makedirs(os.path.dirname(BAL_FILE), exist_ok=True)
+    with open(BAL_FILE, "w") as f:
+        json.dump(s, f, indent=2)
