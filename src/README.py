@@ -43,3 +43,37 @@ Position sync
 Auto size adjust
 Telegram alerts
 Rate-limit scheduler
+
+🔹 Visienesīgākā (reāli strādājošā) pieeja šobrīd
+⚡ STRATĒĢIJA #1 — Cross-Exchange + Triangular Hybrid (Real-Edge Net)
+
+Binance ↔ Kraken ↔ KuCoin (vai cits tirgus ar zemāku likviditāti)
+
+Loģika:
+
+1️⃣ Katras biržas iekšienē tu aprēķini iekšējo trijstūra likmi, piemēram:
+USDC → BTC → USDT → USDC.
+Tas dod tev “lokālo” kursu uz katras biržas.
+
+2️⃣ Pēc tam tu salīdzini šos trijstūra rezultātus starp biržām:
+
+Ja Binance trijstūris dod +0.25%
+
+KuCoin dod −0.35%
+→ kopējā starpība = +0.6% net edge → cross-exchange hedge.
+
+3️⃣ Tu izpildi:
+
+BUY sekvenci biržā ar “lēto” trijstūri (kur valūta ir zemtirgota),
+
+SELL sekvenci biržā ar “dārgo” trijstūri,
+
+un aizver ciklu, kad net delta ≈ 0 (base exposure neutralizēts).
+
+📈 Šī stratēģija dod reālu edge 0.5–1.8%, ja:
+
+orderbooks ir dziļi (>50 līmeņi),
+
+ping starp biržām <30 ms,
+
+un komisijas (fees) kopā <0.15%.
